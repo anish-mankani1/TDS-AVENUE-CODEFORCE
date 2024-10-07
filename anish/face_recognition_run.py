@@ -1,3 +1,6 @@
+Combine computer vision and natural language processing to build an image captioning Al. 
+Use pre-trained image recognition models like VGG or ResNet to extract features from images, 
+and then use a recurrent neural network (RNN) or transformer-based model to captions for those images.
 import cv2
 import face_recognition_run
 known_image = face_recognition_run.load_image_file("known_face.jpg")
