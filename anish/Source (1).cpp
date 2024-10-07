@@ -2,22 +2,17 @@
 #include <algorithm>
 #include <vector>
 #include <array>
-
 using std::cout;
 using std::cin;
 using std::endl;
-
 #define WIN 1000
 #define	DRAW 0
 #define LOSS -1000
-
 #define AI_MARKER 'O'
 #define PLAYER_MARKER 'X'
 #define EMPTY_SPACE '-'
-
 #define START_DEPTH 0
 
-// Print game state
 void print_game_state(int state)
 {
 	if (WIN == state) { cout << "WIN" << endl; }
@@ -25,26 +20,19 @@ void print_game_state(int state)
 	else if (LOSS == state) { cout << "LOSS" << endl; }
 }
 
-// All possible winning states
 std::vector<std::vector<std::pair<int, int>>> winning_states
 {
-	// Every row
 	{ std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(0, 2) },
 	{ std::make_pair(1, 0), std::make_pair(1, 1), std::make_pair(1, 2) },
 	{ std::make_pair(2, 0), std::make_pair(2, 1), std::make_pair(2, 2) },
-
-	// Every column
 	{ std::make_pair(0, 0), std::make_pair(1, 0), std::make_pair(2, 0) },
 	{ std::make_pair(0, 1), std::make_pair(1, 1), std::make_pair(2, 1) },
 	{ std::make_pair(0, 2), std::make_pair(1, 2), std::make_pair(2, 2) },
 
-	// Every diagonal
 	{ std::make_pair(0, 0), std::make_pair(1, 1), std::make_pair(2, 2) },
 	{ std::make_pair(2, 0), std::make_pair(1, 1), std::make_pair(0, 2) }
 
 };
-
-// Print the current board state
 void print_board(char board[3][3])
 {
 	cout << endl;
@@ -54,8 +42,6 @@ void print_board(char board[3][3])
 	cout << "----------" << endl;
 	cout << board[2][0] << " | " << board[2][1] << " | " << board[2][2] << endl << endl;
 }
-
-// Get all available legal moves (spaces that are not occupied)
 std::vector<std::pair<int, int>> get_legal_moves(char board[3][3])
 {
 	std::vector<std::pair<int, int>> legal_moves;
@@ -72,8 +58,6 @@ std::vector<std::pair<int, int>> get_legal_moves(char board[3][3])
 
 	return legal_moves;
 }
-
-// Check if a position is occupied
 bool position_occupied(char board[3][3], std::pair<int, int> pos)
 {
 	std::vector<std::pair<int, int>> legal_moves = get_legal_moves(board);
@@ -88,8 +72,6 @@ bool position_occupied(char board[3][3], std::pair<int, int> pos)
 
 	return true;
 }
-
-// Get all board positions occupied by the given marker
 std::vector<std::pair<int, int>> get_occupied_positions(char board[3][3], char marker)
 {
 	std::vector<std::pair<int, int>> occupied_positions;
@@ -107,8 +89,6 @@ std::vector<std::pair<int, int>> get_occupied_positions(char board[3][3], char m
 
 	return occupied_positions;
 }
-
-// Check if the board is full
 bool board_is_full(char board[3][3])
 {
 	std::vector<std::pair<int, int>> legal_moves = get_legal_moves(board);
@@ -122,8 +102,6 @@ bool board_is_full(char board[3][3])
 		return false;
 	}
 }
-
-// Check if the game has been won
 bool game_is_won(std::vector<std::pair<int, int>> occupied_positions)
 {
 	bool game_won;
@@ -163,8 +141,6 @@ char get_opponent_marker(char marker)
 
 	return opponent_marker;
 }
-
-// Check if someone has won or lost
 int get_board_state(char board[3][3], char marker)
 {
 
@@ -196,15 +172,10 @@ int get_board_state(char board[3][3], char marker)
 	return DRAW;
 
 }
-
-// Apply the minimax game optimization algorithm
 std::pair<int, std::pair<int, int>> minimax_optimization(char board[3][3], char marker, int depth, int alpha, int beta)
 {
-	// Initialize best move
 	std::pair<int, int> best_move = std::make_pair(-1, -1);
 	int best_score = (marker == AI_MARKER) ? LOSS : WIN;
-
-	// If we hit a terminal state (leaf node), return the best score and move
 	if (board_is_full(board) || DRAW != get_board_state(board, AI_MARKER))
 	{
 		best_score = get_board_state(board, AI_MARKER);
@@ -217,20 +188,13 @@ std::pair<int, std::pair<int, int>> minimax_optimization(char board[3][3], char 
 	{
 		std::pair<int, int> curr_move = legal_moves[i];
 		board[curr_move.first][curr_move.second] = marker;
-
-		// Maximizing player's turn
 		if (marker == AI_MARKER)
 		{
 			int score = minimax_optimization(board, PLAYER_MARKER, depth + 1, alpha, beta).first;
-
-			// Get the best scoring move
 			if (best_score < score)
 			{
 				best_score = score - depth * 10;
 				best_move = curr_move;
-
-				// Check if this branch's best move is worse than the best
-				// option of a previously search branch. If it is, skip it
 				alpha = std::max(alpha, best_score);
 				board[curr_move.first][curr_move.second] = EMPTY_SPACE;
 				if (beta <= alpha) 
@@ -239,7 +203,7 @@ std::pair<int, std::pair<int, int>> minimax_optimization(char board[3][3], char 
 				}
 			}
 
-		} // Minimizing opponent's turn
+		} 
 		else
 		{
 			int score = minimax_optimization(board, AI_MARKER, depth + 1, alpha, beta).first;
@@ -248,9 +212,6 @@ std::pair<int, std::pair<int, int>> minimax_optimization(char board[3][3], char 
 			{
 				best_score = score + depth * 10;
 				best_move = curr_move;
-
-				// Check if this branch's best move is worse than the best
-				// option of a previously search branch. If it is, skip it
 				beta = std::min(beta, best_score);
 				board[curr_move.first][curr_move.second] = EMPTY_SPACE;
 				if (beta <= alpha) 
@@ -261,14 +222,13 @@ std::pair<int, std::pair<int, int>> minimax_optimization(char board[3][3], char 
 
 		}
 
-		board[curr_move.first][curr_move.second] = EMPTY_SPACE; // Undo move
+		board[curr_move.first][curr_move.second] = EMPTY_SPACE;
 
 	}
 
 	return std::make_pair(best_score, best_move);
 }
 
-// Check if the game is finished
 bool game_is_done(char board[3][3])
 {
 	if (board_is_full(board))
